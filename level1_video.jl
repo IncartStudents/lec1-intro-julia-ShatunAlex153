@@ -1,15 +1,17 @@
 # переписать ниже примеры из первого часа из видеолекции: 
 # https://youtu.be/4igzy3bGVkQ
 # по желанию можно поменять значения и попробовать другие функции
-println("Hello world!")
+#вывод текста
+println("Hello, I am Alex!")
 
+#выводы типов 
 my_answer = 42
 typeof(my_answer)
 
-my_pi = 3.14159
+my_pi = 3.1415926535143
 typeof(my_pi)
 
-my_name = "Alexandr"
+my_name = "Alex"
 typeof(my_name)
 
 my_answer = my_name
@@ -24,6 +26,7 @@ typeof(my_answer)
 
 =#
 
+#математические операции
 sum = 3 + 7
 
 difference = 10 - 3
@@ -36,26 +39,27 @@ power = 10^2
 
 modulus = 101 % 2
 
-# Strings
+# строки
 s1 = "Это строка"
-s2 = "Это тоже строка"
+s2 = "Это также строка"
 
 """Тут нет ошибок "Потому что все заключено в 3-ые кавычки"!!!"""
 
 typeof('a')
 
-name = "Dmitrii"
+name = "Alex"
 num_fingers = 10
 num_toes = 10
 
+#Объединение строк
 println("Привет, меня зовут $name.")
 println("У меня $num_fingers пальцев на руках и $num_toes пальцев на ногах. Значит всего у меня $(num_fingers+num_toes) пальцев")
 
-string("Получается", "данный метод объединяет строки")
+string("Получается,", " данный метод объединяет строки")
 string("А также позволяет объединять их с числами, например ", 10, " как-то так.")
 
-s3 = "Получается"
-s4 = "данный метод объединяет строки"
+s3 = "Как много котов"
+s4 = " - это очень много котов?"
 
 s3 * s4
 
@@ -63,53 +67,53 @@ s3 * s4
 
 # Data structures
 # Dict
-myphonebook = Dict("Dmitrii" => "867-5309", "Ghodtbusters" => "555-234")
-myphonebook["Jack"] = "555-FILK"
+myphonebook = Dict("Alex" => "462-0645", "Julia" => "555-3535")
+myphonebook["Danil"] = "555-FILK"
 
 myphonebook
 
-myphonebook["Jack"]
+myphonebook["Danil"]
 
-pop!(myphonebook, "Jack")
+pop!(myphonebook, "Danil")
 
-# Index not work!
+myphonebook
+# Индексы не работают!
 # myphonebook[1]
 
-# Tuple
-myfavoriteanimals = ("пингвины", "коты", "Сахарная сумчатая летяга")
+# Кортежи
+myfavoriteanimals = ("пингвины", "коты", "сумчатая летяга")
 
 myfavoriteanimals[1]
 
-# Ошибка! Кортежи неизменяемые!
-# myfavoriteanimals[1] = "otters"
+# Кортежи неизменяемые!
+myfavoriteanimals[1] = "осьминог"
 
-# Array
-myfriends = ["Никита", "Миша", "Андрей"]
+# Массивы
+myfriends = ["Ярик", "Маша", "Данил"]
 
 fibonacci = [1, 1, 2, 3, 5, 8, 13]
 
-
 mix = [1, 2, 3.0, "hi"]
-
 
 myfriends[3]
 
-myfriends[3] = "Леша"
+myfriends[3] = "Дима"
 myfriends
 
-push!(fibonacci, 21)
+push!(fibonacci, 13)
 
 pop!(fibonacci)
 fibonacci
 
-favorites = [["koobideh", "chocolate", "eggs"], ["пингвины", "коты", "Сахарная сумчатая летяга"], ["Никита", "Миша", "Андрей"]]
+#матрицы
+favorites = [["шоколад", "яйца", "сахар"], ["пингвины", "коты", "сумчатая летяга"], ["Данил", "Ярослав", "Дима"]]
 numbers = [[1, 2, 3], [4, 5], [6, 7, 8, 9]]
 
 rand(4, 3)
 
 rand(4, 3, 2)
 
-# Loops
+# Циклы
 let n = 0
     while n < 10
         n += 1
@@ -117,12 +121,12 @@ let n = 0
     end
 end
 
-myfriends = ["Никита", "Миша", "Андрей", "Вадим"]
+myfriends = ["Ярослав", "Данил", "Дима", "Маша"]
 
 let i = 1
     while i <= length(myfriends)
         friend = myfriends[i]
-        println("Привет,$friend, рад встрече!")
+        println("Привет, $friend, рад встрече!")
         i += 1
     end
 end
@@ -133,10 +137,10 @@ end
 
 
 for friend in myfriends
-    println("Привет,$friend, рад встрече!")
+    println("Привет, $friend, рад встрече!")
 end
 
-m, n = 5, 5
+m, n = 5, 6
 A = zeros(m, n)
 
 for i in 1:m
@@ -146,6 +150,7 @@ for i in 1:m
 end
 A
 
+m, n = 5, 8
 B = zeros(m, n)
 
 for i in 1:m, j in 1:n
@@ -160,8 +165,8 @@ for n in 1:10
     display(A)
 end
 
-# Conditionals
-x = 3
+# Сравнение
+x = 9
 y = 90
 
 if x > y
@@ -178,13 +183,16 @@ else
     y
 end
 
+x = 90
+y = 90
 (x > y) ? x : y
 
 
 (x > y) && println("$x больше $y")
+(x == y) && println("$x равно $y")
 (x < y) && println("$x меньше $y")
 
-# functions
+# Функции
 function sayhi(name)
     println("Привет, $name")
 end
@@ -193,18 +201,18 @@ function f(x)
     x^2
 end
 
-sayhi("Dmitrii")
-f(3)
+sayhi("Alex")
+f(5)
 
 sayhi2(name) = println("Привет, $name")
 f2(x) = x^2
-sayhi2("Dmitrii")
-f2(3)
+sayhi2("Danil")
+f2(5)
 
 sayhi3 = name -> println("Привет, $name")
 f3 = x -> x^2
-sayhi3("Dmitrii")
-f3(3)
+sayhi3("Georgy")
+f3(5)
 
 sayhi(43252342134)
 
@@ -226,6 +234,8 @@ v
 sort!(v)
 v
 
+
+#трансляция
 A = [i + 3 * j for j in 0:2, i in 1:3]
 f(A)
 B = f.(A)
@@ -235,18 +245,19 @@ B[2, 2]
 v = [1, 2, 3]
 f.(v)
 
-# Packages
-import Pkg
-# Pkg.add("Example")
+# Пакеты
+import Pkg  
+#Pkg.add("Example")
 using Example
-hello("Это я установил пакет!")
+hello("Я установил пакет!")
 
-# Pkg.add("Colors")
+#Pkg.add("Colors")
 using Colors
 palette = distinguishable_colors(100)
 rand(palette, 3, 3)
 
-# Pkg.add("Plots")
+#Графики
+#Pkg.add("Plots")
 using Plots
 x = -3:0.1:3
 f(x) = x^2
@@ -255,7 +266,7 @@ gr()
 plot(x, y, label="line")
 scatter!(x, y, label="points")
 
-# Pkg.add("PlotlyJS")
+#Pkg.add("PlotlyJS")
 plotlyjs()
 plot(x, y, label="line")
 scatter!(x, y, label="points")
@@ -287,7 +298,7 @@ methods(+)
 
 import Base: +
 # Ошибка! 
-# "hello" + "world!"
+#"hello" + "world!"
 
 +(x::String, y::String) = string(x, y)
 "hello " + "world!"
@@ -314,6 +325,7 @@ A[1] = 17
 [B C]
 
 x = ones(3)
+
 
 b = A * x
 Asym = A + A'
