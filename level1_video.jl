@@ -9,7 +9,7 @@ typeof(my_answer)
 my_pi = 3.14159
 typeof(my_pi)
 
-my_name = "Rodrigo"
+my_name = "El Macho"
 typeof(my_name)
 
 my_answer = my_name
