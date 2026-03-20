@@ -340,3 +340,4 @@ A = randn(3, 3)
 Ashort = A[1:2, :]
 display(Ashort)
 Ashort \ b[1:2]
+#END
