@@ -11,26 +11,27 @@
 # Что происходит с глобальной константой PI, о чем предупреждает интерпретатор?
 const PI = 3.14159
 PI = 3.14
-#сonst делает переменную неизменяемой (константой)
-#Интерпретатор выбрасывает ошибку при попытке изменить константу
+#сonst делает переменную неизменяемой
+#Интерпретатор пишет ошибку при попытке изменить константу
 
 # Что происходит с типами глобальных переменных ниже, какого типа `c` и почему?
 a = 1
 b = 2.0
 c = a + b
-#Float64 - Int64 + Float64 автоматически преобразуется в ..
-#..Float64 для сохранения точности
+# Int64 + Float64 = Float64
+# С автоматически преобразуется в Float64 для сохранения точности
 # Что теперь произошло с переменной а? Как происходит биндинг имен в Julia?
 a = "foo"
-#переменные не имеют фиксированного типа 
-#Имя a теперь ссылается на новое значение типа  String
+#переменная a была перепривязана к новому значению "foo" типа String
+#после присваивания a = "foo" имя a больше не связано с числом 1, а указывает на строку
+#биндинги не имеют фиксированного типа, они просто ссылаются на объекты 
 
 # Что происходит с глобальной переменной g и почему? Чем ограничен биндинг имен в Julia?
 g::Int = 1
 g = "hi"
-# Запись ::Int  ограничивает тип переменной
+# Запись ::Int  ограничивает тип переменной, как число, а мы пытаемся присвоить этому типу данных строку
 function greet()
-    g = "hello" # Это НОВАЯ локальная переменная, не связанная с глобальной g
+    g = "hello" # Это новая локальная переменная, не связанная с глобальной g
     println(g)
 end
 greet()
@@ -38,8 +39,8 @@ greet()
 # Чем отличаются присвоение значений новому имени - и мутация значений?
 v = [1,2,3] # v ссылается на массив
 z = v # z ссылается на тот же массив 
-v[1] = 3  # МУТАЦИЯ: меняем содержимое массива
-v = "hello" # ПРИСВОЕНИЕ: v теперь ссылается на строку
+v[1] = 3  # Мутация изменяет содержимое существующего объекта, на который ссылаются  имена, указывающие на него
+v = "hello" # Присвоение меняет привязку имени к объекту, не затрагивая старый объект
 z
 
 # Написать тип, параметризованный другим типом
@@ -64,13 +65,13 @@ println(p_auto)
 =#
 # Функция без указания типов 
 function multiply(a, b)
-    println("multiply with any types: a=$a, b=$b")
+    println("any types: a=$a, b=$b")
     return a * b
 end
 
-# Функция с конкретными типами (только Int)
+# Функция с конкретными типами (Int)
 function multiple(a::Int, b::Int)
-    println("multiply with Int types: a=$a, b=$b")
+    println("Int types: a=$a, b=$b")
     return a * b
 end
 
@@ -83,15 +84,16 @@ println(multiply("Hello ", "world"))
 Примитивный тип - ключевое слово?
 Композитный тип - ключевое слово?
 =#
+
 abstract type Xxx end # Абстрактный тип - abstract type
 primitive type MyChar 8 end  # 8-битный тип
-# Композитный тип - struct (или mutable struct)
+# Композитный тип - struct (или mutable struct - изменяемый)
 struct XX  # неизменяемый композитный тип
     name::String
     num::Int
 end
 
-mutable struct YY  # изменяемый композитный тип
+mutable struct YY  # изменяемый (mutable) композитный тип
     name::String
     num::Int
 end
@@ -101,31 +103,38 @@ end
 Выполнить функции над объектами подтипов 1 и 2 и объяснить результат
 (функция выводит произвольный текст в консоль)
 =#
-abstract type Shape end
 
-struct Circle <: Shape end
-struct Rectangle <: Shape end
 
-# Функция для абстрактного типа
-function draw(s::Shape)
-    println("Drawing a shape")
+# Абстрактный тип и подтипы
+abstract type Color end
+struct Red <: Color
+    shade::String
 end
 
-# Функция для подтипа-1 (Circle)
-function draw(c::Circle)
-    println("Drawing a circle")
+struct Blue <: Color
+    shade::String
+end
+
+# Функция для абстрактного типа Color
+function describe(c::Color)
+    println("Это цвет")
+end
+
+# Функция для подтипа Red (конкретный метод)
+function describe(c::Red)
+    println("Красный цвет, оттенок: $(c.shade)")
 end
 
 # Создаем объекты
-circle = Circle()
-rectangle = Rectangle()
+r = Red("алый")
+b = Blue("небесный")
 
-# Выполняем функции
-println("--- Вызов draw(circle) ---")
-draw(circle)      
+# Вызываем функции
+describe(r)  # Красный цвет, оттенок: алый  (выбран метод для Red)
+describe(b)  # Это какой-то цвет  (общий метод для Color)
 
-println("--- Вызов draw(rectangle) ---")
-draw(rectangle)   
+#для Red есть прямой метод describe(::Red), поэтому выводится информация о нем 
+#для Blue нет метода, но есть метод describe(::Color), так как Blue <: Color, и он вызывается
 
 #===========================================================================================
 2. Функции:
@@ -136,7 +145,7 @@ draw(rectangle)
 =#
 
 # Пример обычной функции
-function add_regular(x, y)
+function add(x, y)
     return x + y
 end
 # Пример лямбда-функции (аннонимной функции)
@@ -152,12 +161,13 @@ function show_person(first_name::String, last_name::String)
 end
 show_person("Анна", "Иванова")
 # Функции с переменным кол-вом именованных аргументов
-function display_settings(; options...)
+function phone_settings(; options...)
     for (setting, value) in options
         println("$setting = $value")
     end
 end
-display_settings(theme = "dark", fontSize = 14, language = "RU")
+phone_settings(WiFi = "ON", Bluetooth = "OFF", theme = "dark", language = "RU")
+
 #=
 Передать кортеж в функцию, которая принимает на вход несколько аргументов.
 Присвоить кортеж результату функции, которая возвращает несколько аргументов.
@@ -189,7 +199,7 @@ result_tuple = collect_values(points...)
 numbers = [1, 2, 3, 4]
 
 function product_loop(arr)
-    total = 1
+    total = 2
     for element in arr
         total *= element
     end
@@ -207,33 +217,37 @@ c помощью list comprehension
 указать, чем это лучше явного цикла?
 =#
 numbers = [1, 2, 3, 4]
-function cube(x)
-    return x^3
+function f(x)
+    return x^2-x
 end
 
-broadcast_cube = cube.(numbers)
-map_cube = map(cube, numbers)
-comprehension_cube = [cube(x) for x in numbers]
+broadcast_cube = f.(numbers)
+map_f = map(f, numbers)
+comprehension_f = [f(x) for x in numbers]
 # Перемножить вектор-строку [1 2 3] на вектор-столбец [10,20,30] и объяснить результат
-row_vector = [1 2 3]
-column_vector = [10, 20, 30]
-matrix_product = row_vector * column_vector
-typeof(matrix_product)
+row = [1 2 3]
+column = [10, 20, 30]
+matrix = row * column
+typeof(matrix)
 
 # В одну строку выбрать из массива [1, -2, 2, 3, 4, -5, 0] только четные и положительные числа
 data = [1, -2, 2, 3, 4, -5, 0]
 even_positive = [x for x in data if x > 0 && x % 2 == 0]
 
+data = [1, -2, 2, 3, 4, -5, 0]
+A=[a for a in data if a % 2==1 && a > 1]
+
 # Объяснить следующий код обработки массива names - что за number мы в итоге определили?
 using Random
 Random.seed!(123)
 names = [rand('A':'Z') * '_' * rand('0':'9') * rand([".csv", ".bin"]) for _ in 1:100]
-# ---
+# Подключаем Random и фиксируем генератор случайных чисел
 same_names = unique(map(y -> split(y, ".")[1], filter(x -> startswith(x, "A"), names)))
 numbers = parse.(Int, map(x -> split(x, "_")[end], same_names))
 numbers_sorted = sort(numbers)
 number = findfirst(n -> !(n in numbers_sorted), 0:9)
-# нашли Первое число от 0 до 9, которого нет среди цифр в именах файлов, начинающихся на 'A'
+# Из всех полученных находим начинающикся на 'A', вытаскиваем число из имени и сортируем их
+
 # Упростить этот код обработки:
 using Random
 Random.seed!(123)
