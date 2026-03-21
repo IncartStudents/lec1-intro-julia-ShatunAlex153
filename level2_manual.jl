@@ -4,46 +4,80 @@
 #===========================================================================================
 1. Переменные и константы, области видимости, cистема типов:
 приведение к типам,
-конкретные и абстрактные типы,
+конкретные и абстрактные типы, 
 множественная диспетчеризация,
 =#
 
 # Что происходит с глобальной константой PI, о чем предупреждает интерпретатор?
 const PI = 3.14159
 PI = 3.14
+#сonst делает переменную неизменяемой
+#Интерпретатор пишет ошибку при попытке изменить константу
 
 # Что происходит с типами глобальных переменных ниже, какого типа `c` и почему?
 a = 1
 b = 2.0
 c = a + b
-
+# Int64 + Float64 = Float64
+# С автоматически преобразуется в Float64 для сохранения точности
 # Что теперь произошло с переменной а? Как происходит биндинг имен в Julia?
 a = "foo"
+#переменная a была перепривязана к новому значению "foo" типа String
+#после присваивания a = "foo" имя a больше не связано с числом 1, а указывает на строку
+#биндинги не имеют фиксированного типа, они просто ссылаются на объекты 
 
 # Что происходит с глобальной переменной g и почему? Чем ограничен биндинг имен в Julia?
 g::Int = 1
 g = "hi"
-
+# Запись ::Int  ограничивает тип переменной, как число, а мы пытаемся присвоить этому типу данных строку
 function greet()
-    g = "hello"
+    g = "hello" # Это новая локальная переменная, не связанная с глобальной g
     println(g)
 end
 greet()
 
 # Чем отличаются присвоение значений новому имени - и мутация значений?
-v = [1,2,3]
-z = v
-v[1] = 3
-v = "hello"
+v = [1,2,3] # v ссылается на массив
+z = v # z ссылается на тот же массив 
+v[1] = 3  # Мутация изменяет содержимое существующего объекта, на который ссылаются  имена, указывающие на него
+v = "hello" # Присвоение меняет привязку имени к объекту, не затрагивая старый объект
 z
 
 # Написать тип, параметризованный другим типом
+# Параметризованный тип Point{T}
+struct Point{T}
+    x::T
+    y::T
+end
 
+# экземпляры с разными типами
+p_int = Point{Int}(1, 2)        # Point{Int64}(1, 2)
+p_float = Point{Float64}(3.0, 4.0)  # Point{Float64}(3.0, 4.0)
+p_auto = Point(5, 6)            
+
+println(p_int)
+println(p_float)
+println(p_auto)
 #=
 Написать функцию для двух аругментов, не указывая их тип,
 и вторую функцию от двух аргментов с конкретными типами,
 дать пример запуска
 =#
+# Функция без указания типов 
+function multiply(a, b)
+    println("any types: a=$a, b=$b")
+    return a * b
+end
+
+# Функция с конкретными типами (Int)
+function multiple(a::Int, b::Int)
+    println("Int types: a=$a, b=$b")
+    return a * b
+end
+
+println(multiple(2, 3))       
+println(multiply(2.5, 3.5))     
+println(multiply("Hello ", "world"))  
 
 #=
 Абстрактный тип - ключевое слово?
@@ -51,6 +85,18 @@ z
 Композитный тип - ключевое слово?
 =#
 
+abstract type Xxx end # Абстрактный тип - abstract type
+primitive type MyChar 8 end  # 8-битный тип
+# Композитный тип - struct (или mutable struct - изменяемый)
+struct XX  # неизменяемый композитный тип
+    name::String
+    num::Int
+end
+
+mutable struct YY  # изменяемый (mutable) композитный тип
+    name::String
+    num::Int
+end
 #=
 Написать один абстрактный тип и два его подтипа (1 и 2)
 Написать функцию над абстрактным типом, и функцию над её подтипом-1
@@ -58,6 +104,37 @@ z
 (функция выводит произвольный текст в консоль)
 =#
 
+
+# Абстрактный тип и подтипы
+abstract type Color end
+struct Red <: Color
+    shade::String
+end
+
+struct Blue <: Color
+    shade::String
+end
+
+# Функция для абстрактного типа Color
+function describe(c::Color)
+    println("Это цвет")
+end
+
+# Функция для подтипа Red (конкретный метод)
+function describe(c::Red)
+    println("Красный цвет, оттенок: $(c.shade)")
+end
+
+# Создаем объекты
+r = Red("алый")
+b = Blue("небесный")
+
+# Вызываем функции
+describe(r)  # Красный цвет, оттенок: алый  (выбран метод для Red)
+describe(b)  # Это какой-то цвет  (общий метод для Color)
+
+#для Red есть прямой метод describe(::Red), поэтому выводится информация о нем 
+#для Blue нет метода, но есть метод describe(::Color), так как Blue <: Color, и он вызывается
 
 #===========================================================================================
 2. Функции:
@@ -68,21 +145,47 @@ z
 =#
 
 # Пример обычной функции
-
+function add(x, y)
+    return x + y
+end
 # Пример лямбда-функции (аннонимной функции)
-
+add_lambda = (x, y) -> x + y
 # Пример функции с переменным количеством аргументов
-
+function summm(x...)
+    return sum(x)
+end
+summm(4, 8, 3, 1)
 # Пример функции с именованными аргументами
-
+function show_person(first_name::String, last_name::String)
+    println("Имя: $first_name, Фамилия: $last_name")
+end
+show_person("Анна", "Иванова")
 # Функции с переменным кол-вом именованных аргументов
+function phone_settings(; options...)
+    for (setting, value) in options
+        println("$setting = $value")
+    end
+end
+phone_settings(WiFi = "ON", Bluetooth = "OFF", theme = "dark", language = "RU")
 
 #=
 Передать кортеж в функцию, которая принимает на вход несколько аргументов.
 Присвоить кортеж результату функции, которая возвращает несколько аргументов.
 Использовать splatting - деструктуризацию кортежа в набор аргументов.
 =#
+points = (4, 5, 6)
 
+function calculate_total(a, b, c)
+    return(a + b + c)
+end
+
+calculate_total(points...)
+
+function collect_values(v...)
+    return v
+end
+
+result_tuple = collect_values(points...)
 
 #===========================================================================================
 3. loop fusion, broadcast, filter, map, reduce, list comprehension
@@ -93,7 +196,19 @@ z
 - через loop fusion и
 - с помощью reduce
 =#
+numbers = [1, 2, 3, 4]
 
+function product_loop(arr)
+    total = 2
+    for element in arr
+        total *= element
+    end
+    return total
+end
+
+product_loop(numbers)
+
+product_reduce = reduce(*, numbers)
 #=
 Написать функцию от одного аргумента и запустить ее по всем элементам массива
 с помощью точки (broadcast)
@@ -101,35 +216,76 @@ c помощью map
 c помощью list comprehension
 указать, чем это лучше явного цикла?
 =#
+numbers = [1, 2, 3, 4]
+function f(x)
+    return x^2-x
+end
 
+broadcast_cube = f.(numbers)
+map_f = map(f, numbers)
+comprehension_f = [f(x) for x in numbers]
 # Перемножить вектор-строку [1 2 3] на вектор-столбец [10,20,30] и объяснить результат
-
+row = [1 2 3]
+column = [10, 20, 30]
+matrix = row * column
+typeof(matrix)
 
 # В одну строку выбрать из массива [1, -2, 2, 3, 4, -5, 0] только четные и положительные числа
+data = [1, -2, 2, 3, 4, -5, 0]
+even_positive = [x for x in data if x > 0 && x % 2 == 0]
 
+data = [1, -2, 2, 3, 4, -5, 0]
+A=[a for a in data if a % 2==1 && a > 1]
 
 # Объяснить следующий код обработки массива names - что за number мы в итоге определили?
 using Random
 Random.seed!(123)
 names = [rand('A':'Z') * '_' * rand('0':'9') * rand([".csv", ".bin"]) for _ in 1:100]
-# ---
+# Подключаем Random и фиксируем генератор случайных чисел
 same_names = unique(map(y -> split(y, ".")[1], filter(x -> startswith(x, "A"), names)))
 numbers = parse.(Int, map(x -> split(x, "_")[end], same_names))
 numbers_sorted = sort(numbers)
 number = findfirst(n -> !(n in numbers_sorted), 0:9)
+# Из всех полученных находим начинающикся на 'A', вытаскиваем число из имени и сортируем их
 
 # Упростить этот код обработки:
+using Random
+Random.seed!(123)
+names = [rand('A':'Z') * '_' * rand('0':'9') * rand([".csv", ".bin"]) for _ in 1:100]
 
+a_files = filter(name -> startswith(name, "A"), names)
+digits = [parse(Int, split(name, "_")[end][1]) for name in a_files]
+missing_digit = findfirst(d -> !(d in digits), 0:9)
+
+println("Первая отсутствующая цифра в файлах на 'A': $missing_digit")
 
 #===========================================================================================
 4. Свой тип данных на общих интерфейсах
 =#
+struct SlowVector
+    dimension::Int
+end
 
+Base.getindex(vec::SlowVector, position::Int) = position^2
+slow_vec = SlowVector(6)
+println("Элемент на позиции 6: $(slow_vec[6])")  # 36
+println("Элемент на позиции 3: $(slow_vec[3])")  # 9
 #=
 написать свой тип ленивого массива, каждый элемент которого
 вычисляется при взятии индекса (getindex) по формуле (index - 1)^2
 =#
+struct LazySquares
+    size::Int
+end
 
+Base.getindex(arr::LazySquares, idx::Int) = (idx - 1)^2
+
+# Создаем и используем ленивый массив
+lazy_arr = LazySquares(10)
+println("Ленивый массив размера 10")
+println("Элемент с индексом 1: $(lazy_arr[1])")  # (1-1)^2 = 0
+println("Элемент с индексом 5: $(lazy_arr[5])")  # (5-1)^2 = 16
+println("Элемент с индексом 10: $(lazy_arr[10])") # (10-1)^2 = 81
 #=
 Написать два типа объектов команд, унаследованных от AbstractCommand,
 которые применяются к массиву:
@@ -140,6 +296,28 @@ number = findfirst(n -> !(n in numbers_sorted), 0:9)
 abstract type AbstractCommand end
 apply!(cmd::AbstractCommand, target::Vector) = error("Not implemented for type $(typeof(cmd))")
 
+abstract type AbstractCommand end
+apply!(cmd::AbstractCommand, target::Vector) = error("Not implemented")
+
+# Команда сортировки
+struct SortCmd <: AbstractCommand end
+apply!(::SortCmd, target::Vector) = sort!(target)
+
+# Команда изменения элемента
+struct ChangeAtCmd <: AbstractCommand
+    i::Int
+    val
+end
+apply!(cmd::ChangeAtCmd, target::Vector) = (target[cmd.i] = cmd.val; target)
+
+# Пример использования
+arr = [3, 1, 4, 1, 5]
+apply!(SortCmd(), arr)
+println(arr)  # [1, 1, 3, 4, 5]
+
+apply!(ChangeAtCmd(2, 99), arr)
+println(arr)  # [1, 99, 3, 4, 5]
+
 
 # Аналогичные команды, но без наследования и в виде замыканий (лямбда-функций)
 
@@ -147,14 +325,43 @@ apply!(cmd::AbstractCommand, target::Vector) = error("Not implemented for type $
 #===========================================================================================
 5. Тесты: как проверять функции?
 =#
+# Определим функцию для тестирования
+function multiply(x, y)
+    return x * y
+end
 
+# Написать тест для функции multiply
+@assert multiply(3, 3) == 9
+@assert multiply(5, 2) == 10
+@assert multiply(5, 2) != 9
+
+# Также можно с помощью пакета Test
+using Test
+@testset "Тестирование умножения" begin
+    @test multiply(3, 3) == 9
+    @test multiply(5, 2) == 10
+    @test multiply(0, 5) == 0
+    @test multiply(-2, 3) == -6
+    println("Все тесты умножения пройдены!")
+end
 # Написать тест для функции
 
 
 #===========================================================================================
 6. Дебаг: как отладить функцию по шагам?
 =#
+using Debugger
 
+function sum_arr(arr)
+    s = 0
+    for x in arr
+        s += x
+    end
+    return s
+end
+
+# Точка останова и отладка
+@enter sum_arr([1, 2, 3])
 #=
 Отладить функцию по шагам с помощью макроса @enter и точек останова
 =#
@@ -166,7 +373,7 @@ apply!(cmd::AbstractCommand, target::Vector) = error("Not implemented for type $
 
 #=
 Оценить производительность функции с помощью макроса @profview,
-и добавить в этот репозиторий файл со скриншотом flamechart'а
+
 =#
 function generate_data(len)
     vec1 = Any[]
